@@ -11,11 +11,12 @@ urlpatterns = [
     path('register/', views.register_user, name='register'),
     path('login/', views.login_user, name='login'),
     path('logout/', views.logout_user, name='logout'),
+    path('users/', views.get_users, name='users'),
     path('user/<int:pk>/', views.get_user, name='user'),
     
     # Rooms
-    path('rooms/', views.room_list, name='room-list'),
-    path('rooms/<int:pk>/', views.room_detail, name='room-detail'),
+    path('rooms/optimized/', views.get_rooms_optimized, name='room-list'),
+    path('rooms/optimized/<int:pk>/', views.get_room_optimized, name='room-detail'),
     
     # Messages
     path('rooms/<int:room_pk>/messages/', views.message_list, name='message-list'),
