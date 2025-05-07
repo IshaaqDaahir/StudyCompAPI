@@ -23,12 +23,12 @@ def get_routes(request):
         'GET /api',
         'GET /api/rooms/',
         'GET /api/rooms/:id',
+        'GET /api/users/',
+        'GET /api/users/:id',
         'POST /api/token/',
         'POST /api/token/refresh/',
         'POST /api/register/',
         'POST /api/login/',
-        'GET /api/users/',
-        'GET /api/user/:id',
         'POST /api/logout/',
     ]
     return Response(routes)
@@ -123,21 +123,21 @@ def logout_user(request):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def get_user(request, pk):
     user = User.objects.get(pk=pk)
     serializer = UserSerializer(user)
     return Response(serializer.data)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def get_users(request):
     users = User.objects.all()
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def message_list(request, room_pk):
     try:
         room = Room.objects.get(pk=room_pk)
