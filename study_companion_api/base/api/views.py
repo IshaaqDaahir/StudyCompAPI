@@ -4,18 +4,16 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout
-from base.models import User
+from base.models import User, Room
 from .serializers import (
     RoomSerializer, 
     UserSerializer, 
     RegisterSerializer, 
-    TopicSerializer, 
     MessageSerializer,
 )
 from base.models import Room, Topic, Message
 from django.db.models import Q
-from django.core.cache import cache
-from django.views.decorators.cache import cache_page
+from rest_framework import generics
 
 @api_view(['GET'])
 def get_routes(request):
@@ -32,7 +30,6 @@ def get_routes(request):
         'POST /api/logout/',
     ]
     return Response(routes)
-
 
 @api_view(['GET', 'POST'])
 def room_list(request):
