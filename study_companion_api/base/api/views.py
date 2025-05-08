@@ -21,6 +21,8 @@ def get_routes(request):
         'GET /api',
         'GET /api/rooms/',
         'GET /api/rooms/:id',
+        'POST /api/rooms/:id/message',
+        'GET /api/messages/',
         'GET /api/users/',
         'GET /api/users/:id',
         'POST /api/token/',
@@ -133,23 +135,27 @@ def get_users(request):
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 # @permission_classes([IsAuthenticated])
-def message_list(request, room_pk):
+def create_message(request, room_pk):
     try:
         room = Room.objects.get(pk=room_pk)
     except Room.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-
+    
+    if request.method == 'POST':
+        message = MessageSerializer(data=request.data)
+        if message.is_valid():
+            message.save(user=request.user, room=room)
+            room.participants.add(request.user)
+            return Response(message.data, status=status.HTTP_201_CREATED)
+        return Response(message.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+def message_list(request):
     if request.method == 'GET':
-        messages = Message.objects.filter(room=room)
+        messages = Message.objects.all()
         serializer = MessageSerializer(messages, many=True)
         return Response(serializer.data)
     
-    elif request.method == 'POST':
-        serializer = MessageSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user, room=room)
-            room.participants.add(request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

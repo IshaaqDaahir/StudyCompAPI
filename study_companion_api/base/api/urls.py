@@ -19,5 +19,6 @@ urlpatterns = [
     path('rooms/<int:pk>/', views.room_detail, name='room-detail'),
     
     # Messages
-    path('rooms/<int:room_pk>/messages/', views.message_list, name='message-list'),
+    path('rooms/<int:room_pk>/message/', views.create_message, name='create-message'),
+    path('messages/', views.message_list, name='message-list'),
 ]
