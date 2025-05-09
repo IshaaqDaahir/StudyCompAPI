@@ -48,40 +48,22 @@ class TopicSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class RoomSerializer(serializers.ModelSerializer):
+    host = UserSerializer(read_only=True)
+    topic = TopicSerializer(read_only=True)
+    participants = UserSerializer(read_only=True, many=True)
+    
+    class Meta:
+        model = Room
+        fields = '__all__'
+
+
 class MessageSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    room = RoomSerializer(read_only=True)
     
     class Meta:
         model = Message
         fields = '__all__'
 
 
-class RoomSerializer(serializers.ModelSerializer):
-    host = UserSerializer(read_only=True)
-    topic = TopicSerializer(read_only=True)
-    participants = UserSerializer(read_only=True, many=True)
-    message_set = MessageSerializer(read_only=True, many=True)
-    
-    class Meta:
-        model = Room
-        fields = '__all__'
-
-
-# serializers.py
-class LightRoomSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Room
-        fields = ['id', 'name', 'description', 'updated', 'created']
-        
-        
-class RoomListSerializer(serializers.ModelSerializer):
-    host = serializers.StringRelatedField()
-    topic = serializers.StringRelatedField()
-    message_count = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = Room
-        fields = ['id', 'name', 'description', 'host', 'topic', 'message_count', 'updated']
-    
-    def get_message_count(self, obj):
-        return obj.message_set.count()
