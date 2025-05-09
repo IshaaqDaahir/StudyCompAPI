@@ -13,7 +13,6 @@ from .serializers import (
 )
 from base.models import Room, Topic, Message
 from django.db.models import Q
-from rest_framework import generics
 
 @api_view(['GET'])
 def get_routes(request):
@@ -36,11 +35,7 @@ def get_routes(request):
 @api_view(['GET', 'POST'])
 def room_list(request):
     if request.method == 'GET':
-        q = request.query_params.get('q', '')
-        rooms = Room.objects.filter(
-            Q(topic__name__icontains=q) | Q(name__icontains=q) |
-            Q(description__icontains=q) | Q(host__username__icontains=q)
-        )
+        rooms = Room.objects.all()
         serializer = RoomSerializer(rooms, many=True)
         return Response(serializer.data)
     
