@@ -24,4 +24,7 @@ urlpatterns = [
 
     # Search
     path('search/', views.search, name='search'),
+
+    # Topics
+    path('topics/', views.topics_list, name='topics-list'),
 ]

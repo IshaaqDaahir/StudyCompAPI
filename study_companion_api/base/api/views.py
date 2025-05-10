@@ -25,6 +25,8 @@ from base.models import Room, Topic, Message
 def get_routes(request):
     routes = [
         'GET /api',
+        'GET /api/topics_list/',
+        'GET /api/search/',
         'GET /api/rooms/',
         'GET /api/rooms/:id',
         'POST /api/rooms/:id/message',
@@ -38,6 +40,12 @@ def get_routes(request):
         'POST /api/logout/',
     ]
     return Response(routes)
+
+@api_view(["GET"])
+def topics_list(request):
+    topics = Topic.objects.all()
+    topics_serializer = TopicSerializer(topics, many=True)
+    return Response(topics_serializer.data)
 
 @api_view(['GET'])
 def search(request):
