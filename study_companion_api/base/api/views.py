@@ -14,6 +14,13 @@ from .serializers import (
 from base.models import Room, Topic, Message
 from django.db.models import Q
 
+# api/views.py
+from django.db.models import Q
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .serializers import RoomSerializer, TopicSerializer, MessageSerializer
+from base.models import Room, Topic, Message
+
 @api_view(['GET'])
 def get_routes(request):
     routes = [
@@ -31,6 +38,37 @@ def get_routes(request):
         'POST /api/logout/',
     ]
     return Response(routes)
+
+@api_view(['GET'])
+def search(request):
+    query = request.GET.get('q', '')
+    
+    # Search rooms
+    rooms = Room.objects.filter(
+        Q(name__icontains=query) |
+        Q(description__icontains=query) |
+        Q(topic__name__icontains=query) |
+        Q(host__username__icontains=query)
+    )
+    room_serializer = RoomSerializer(rooms, many=True)
+    
+    # Search topics
+    topics = Topic.objects.filter(name__icontains=query)
+    topic_serializer = TopicSerializer(topics, many=True)
+    
+    # Search messages (for activity feed)
+    messages = Message.objects.filter(
+        Q(body__icontains=query) |
+        Q(room__name__icontains=query) |
+        Q(user__username__icontains=query)
+    )
+    message_serializer = MessageSerializer(messages, many=True)
+    
+    return Response({
+        'rooms': room_serializer.data,
+        'topics': topic_serializer.data,
+        'messages': message_serializer.data
+    })
 
 @api_view(['GET', 'POST'])
 def room_list(request):
