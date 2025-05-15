@@ -85,7 +85,7 @@ def room_list(request):
         serializer = RoomSerializer(rooms, many=True)
         return Response(serializer.data)
     
-    elif request.method == 'POST' and request.user.is_authenticated:
+    elif request.method == 'POST':
         serializer = RoomSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(host=request.user)
