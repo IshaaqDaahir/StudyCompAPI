@@ -57,6 +57,18 @@ class RoomSerializer(serializers.ModelSerializer):
         model = Room
         fields = '__all__'
 
+    def create(self, validated_data):
+        # Get or create the topic
+        topic_name = self.context.get('topic_name')
+        if topic_name:
+            topic, created = Topic.objects.get_or_create(name=topic_name)
+            validated_data['topic'] = topic
+        
+        # Set the host to the current user
+        validated_data['host'] = self.context['request'].user
+        
+        return super().create(validated_data)
+
 
 class MessageSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)

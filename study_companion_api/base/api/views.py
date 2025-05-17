@@ -86,7 +86,18 @@ def room_list(request):
         return Response(serializer.data)
     
     elif request.method == 'POST':
-        serializer = RoomSerializer(data=request.data)
+        # Get topic name from request data
+        topic_name = request.POST.get('room-topic')
+        topic = Topic.objects.create(name=topic_name)
+        
+        serializer = RoomSerializer(
+            data=request.data,
+            context={
+                'request': request,
+                'topic_name': topic
+            }
+        )
+
         if serializer.is_valid():
             serializer.save(host=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
