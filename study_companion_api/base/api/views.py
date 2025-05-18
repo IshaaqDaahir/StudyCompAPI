@@ -79,6 +79,7 @@ def search(request):
     })
 
 @api_view(['GET', 'POST'])
+# @permission_classes([IsAuthenticated])
 def room_list(request):
     if request.method == 'GET':
         rooms = Room.objects.all()
@@ -87,19 +88,25 @@ def room_list(request):
     
     elif request.method == 'POST':
         # Get topic name from request data
-        topic_name = request.POST.get('room-topic')
-        topic = Topic.objects.create(name=topic_name)
+        topic_name = request.data.get('topic')
+
+        if not topic_name:
+            return Response({'error': 'Topic is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get or create the topic
+        topic, created = Topic.objects.get_or_create(name=topic_name)
+
+        # Prepare data for serializer
+        data = request.data.copy()
+        data['topic'] = topic.id  # Pass topic ID instead of name
         
         serializer = RoomSerializer(
-            data=request.data,
-            context={
-                'request': request,
-                'topic_name': topic
-            }
+            data=data,
+            context={'request': request}
         )
 
         if serializer.is_valid():
-            serializer.save(host=request.user)
+            serializer.save(host=request.user, topic=topic)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -150,10 +157,21 @@ def register_user(request):
 def login_user(request):
     email = request.data.get('email')
     password = request.data.get('password')
+
+    # Validate input
+    if not email or not password:
+        return Response(
+            {'error': 'Both email and password are required'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
     
-    user = authenticate(request, email=email, password=password)
+    # Authenticate using email as username
+    user = authenticate(request, username=email, password=password)
     
     if user is not None:
+        # This is optional - only needed if you want session-based auth too
+        login(request, user)
+
         refresh = RefreshToken.for_user(user)
         return Response({
             'user': UserSerializer(user).data,
