@@ -155,7 +155,7 @@ def register_user(request):
 
 @api_view(['POST'])
 def login_user(request):
-    email = request.data.get('email')
+    email = request.data.get('email').lower().strip() if request.data.get('email') else None
     password = request.data.get('password')
 
     # Validate input
@@ -169,10 +169,16 @@ def login_user(request):
     user = authenticate(request, username=email, password=password)
     
     if user is not None:
+        if not user.is_active:
+            return Response(
+                {'error': 'Account is disabled'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
         # This is optional - only needed if you want session-based auth too
         login(request, user)
-
         refresh = RefreshToken.for_user(user)
+
         return Response({
             'user': UserSerializer(user).data,
             'refresh': str(refresh),

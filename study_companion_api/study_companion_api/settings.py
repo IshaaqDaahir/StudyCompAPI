@@ -140,7 +140,13 @@ REST_FRAMEWORK = {
     )
 }
 
-CORS_ALLOW_ALL_ORIGINS = True  # For development only, restrict in production
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Your Next.js dev server
+    # Add production URL when ready
+]
+CORS_ALLOW_CREDENTIALS = True
+
 
 # For development, you can increase the token lifetime
 SIMPLE_JWT = {
