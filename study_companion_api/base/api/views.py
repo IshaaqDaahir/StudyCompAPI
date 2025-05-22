@@ -190,12 +190,17 @@ def login_user(request):
 @permission_classes([IsAuthenticated])
 def logout_user(request):
     try:
-        refresh_token = request.data["refresh"]
+        refresh_token = request.data.get("refresh")
         token = RefreshToken(refresh_token)
         token.blacklist()
+        
+        logout(request)
         return Response(status=status.HTTP_205_RESET_CONTENT)
     except Exception as e:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 @api_view(['GET'])
 # @permission_classes([IsAuthenticated])
