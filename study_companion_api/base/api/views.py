@@ -1,5 +1,4 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -80,7 +79,6 @@ def search(request):
     })
 
 @api_view(['GET', 'POST'])
-# @permission_classes([IsAuthenticated])
 def room_list(request):
     if request.method == 'GET':
         rooms = Room.objects.all()
@@ -112,7 +110,6 @@ def room_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-# @permission_classes([IsAuthenticated])
 def room_detail(request, pk):
     try:
         room = Room.objects.get(pk=pk)
@@ -188,7 +185,6 @@ def login_user(request):
     return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def logout_user(request):
     try:
         refresh_token = request.data.get("refresh")
@@ -204,21 +200,18 @@ def logout_user(request):
         )
 
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
 def get_user(request, pk):
     user = User.objects.get(pk=pk)
     serializer = UserSerializer(user)
     return Response(serializer.data)
 
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
 def get_users(request):
     users = User.objects.all()
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
 
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
 def create_message(request, room_pk):
     try:
         room = Room.objects.get(pk=room_pk)
@@ -234,7 +227,6 @@ def create_message(request, room_pk):
         return Response(message.errors, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
 def message_list(request):
     if request.method == 'GET':
         messages = Message.objects.all()
@@ -242,7 +234,6 @@ def message_list(request):
         return Response(serializer.data)
 
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
 def message_detail(request, msg_pk):
     if request.method == 'GET':
         message = Message.objects.get(pk=msg_pk)
