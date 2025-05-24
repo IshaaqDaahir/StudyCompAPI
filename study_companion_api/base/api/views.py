@@ -233,10 +233,32 @@ def message_list(request):
         serializer = MessageSerializer(messages, many=True)
         return Response(serializer.data)
 
-@api_view(['GET'])
+@api_view(['GET', 'DELETE'])
 def message_detail(request, msg_pk):
-    if request.method == 'GET':
+    try:
         message = Message.objects.get(pk=msg_pk)
-        serializer = MessageSerializer(message)
-        return Response(serializer.data)
+
+        # Check if the requesting user owns the message
+        # if request.user != message.user:
+        #     return Response(
+        #         {'error': 'You can only delete your own messages'},
+        #         status=status.HTTP_403_FORBIDDEN
+        #     )
+
+        if request.method == 'GET':
+            serializer = MessageSerializer(message)
+            return Response(serializer.data)
+        
+        elif request.method == 'DELETE':
+            message.delete()
+            return Response(
+                {'success': 'Message deleted successfully'},
+                status=status.HTTP_204_NO_CONTENT
+            )
+    
+    except Message.DoesNotExist:
+        return Response(
+            {'error': 'Message not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
     
