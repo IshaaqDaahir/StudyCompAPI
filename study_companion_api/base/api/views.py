@@ -31,6 +31,7 @@ def get_routes(request):
         'GET /api/rooms/:id',
         'POST /api/rooms/:id/message',
         'GET /api/messages/',
+        'GET /api/messages/:id',
         'GET /api/users/',
         'GET /api/users/:id',
         'POST /api/token/',
@@ -238,5 +239,13 @@ def message_list(request):
     if request.method == 'GET':
         messages = Message.objects.all()
         serializer = MessageSerializer(messages, many=True)
+        return Response(serializer.data)
+
+@api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+def message_detail(request, msg_pk):
+    if request.method == 'GET':
+        message = Message.objects.get(pk=msg_pk)
+        serializer = MessageSerializer(message)
         return Response(serializer.data)
     
