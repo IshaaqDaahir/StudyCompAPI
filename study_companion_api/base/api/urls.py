@@ -17,6 +17,7 @@ urlpatterns = [
     # Rooms
     path('rooms/', views.room_list, name='room-list'),
     path('rooms/<int:pk>/', views.room_detail, name='room-detail'),
+    path('rooms/create/', views.create_room, name='create-room'),
     
     # Messages
     path('rooms/<int:room_pk>/message/', views.create_message, name='create-message'),
