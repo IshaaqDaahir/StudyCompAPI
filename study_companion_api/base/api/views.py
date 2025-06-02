@@ -26,6 +26,7 @@ def get_routes(request):
         'GET /api',
         'GET /api/topics_list/',
         'GET /api/search/',
+        'POST /api/rooms/create/'
         'GET /api/rooms/',
         'GET /api/rooms/:id',
         'POST /api/rooms/:id/message',
@@ -78,36 +79,37 @@ def search(request):
         'messages': message_serializer.data
     })
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
+def create_room(request):
+    # Get topic name from request data
+    topic_name = request.data.get('topic')
+
+    if not topic_name:
+        return Response({'error': 'Topic is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Get or create the topic
+    topic, created = Topic.objects.get_or_create(name=topic_name)
+
+    # Prepare data for serializer
+    data = request.data.copy()
+    data['topic'] = topic.id  # Pass topic ID instead of name
+    
+    serializer = RoomSerializer(
+        data=data,
+        context={'request': request}
+    )
+
+    if serializer.is_valid():
+        serializer.save(host=request.user, topic=topic)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
 def room_list(request):
     if request.method == 'GET':
         rooms = Room.objects.all()
         serializer = RoomSerializer(rooms, many=True)
         return Response(serializer.data)
-    
-    elif request.method == 'POST':
-        # Get topic name from request data
-        topic_name = request.data.get('topic')
-
-        if not topic_name:
-            return Response({'error': 'Topic is required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Get or create the topic
-        topic, created = Topic.objects.get_or_create(name=topic_name)
-
-        # Prepare data for serializer
-        data = request.data.copy()
-        data['topic'] = topic.id  # Pass topic ID instead of name
-        
-        serializer = RoomSerializer(
-            data=data,
-            context={'request': request}
-        )
-
-        if serializer.is_valid():
-            serializer.save(host=request.user, topic=topic)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def room_detail(request, pk):
