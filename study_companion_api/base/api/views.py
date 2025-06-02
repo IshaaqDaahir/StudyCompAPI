@@ -87,12 +87,16 @@ def create_room(request):
     if not topic_name:
         return Response({'error': 'Topic is required'}, status=status.HTTP_400_BAD_REQUEST)
     
+    # Strip whitespace
+    topic_name = topic_name.strip()
+    
     # Get or create the topic
     topic, created = Topic.objects.get_or_create(name=topic_name)
 
     # Prepare data for serializer
     data = request.data.copy()
-    data['topic'] = topic.id  # Pass topic ID instead of name
+    if 'topic' in data:
+        del data['topic']  # Remove topic from serializer data
     
     serializer = RoomSerializer(
         data=data,
