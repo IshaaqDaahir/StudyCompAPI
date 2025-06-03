@@ -1,4 +1,6 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -80,15 +82,14 @@ def search(request):
     })
 
 @api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def create_room(request):
     # Get topic name from request data
-    topic_name = request.data.get('topic')
+    topic_name = request.data.get('topic', '').strip()
 
     if not topic_name:
         return Response({'error': 'Topic is required'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    # Strip whitespace
-    topic_name = topic_name.strip()
     
     # Get or create the topic
     topic, created = Topic.objects.get_or_create(name=topic_name)
