@@ -31,6 +31,8 @@ def get_routes(request):
         'POST /api/rooms/create/'
         'GET /api/rooms/',
         'GET /api/rooms/:id',
+        'POST /api/rooms/:id/update',
+        'POST /api/rooms/:id/delete',
         'POST /api/rooms/:id/message',
         'GET /api/messages/',
         'GET /api/messages/:id',
@@ -116,7 +118,7 @@ def room_list(request):
         serializer = RoomSerializer(rooms, many=True)
         return Response(serializer.data)
 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET'])
 def room_detail(request, pk):
     try:
         room = Room.objects.get(pk=pk)
@@ -127,7 +129,14 @@ def room_detail(request, pk):
         serializer = RoomSerializer(room)
         return Response(serializer.data)
 
-    elif request.method == 'PUT':
+@api_view(['PUT', 'DELETE'])
+def update_delete_room(request, pk):
+    try:
+        room = Room.objects.get(pk=pk)
+    except Room.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PUT':
         if room.host != request.user:
             return Response({'error': 'You are not the host of this room'}, status=status.HTTP_403_FORBIDDEN)
         
