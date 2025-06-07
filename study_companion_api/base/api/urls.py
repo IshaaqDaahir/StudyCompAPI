@@ -18,8 +18,8 @@ urlpatterns = [
     path('rooms/', views.room_list, name='room-list'),
     path('rooms/create/', views.create_room, name='create-room'),
     path('rooms/<int:pk>/', views.room_detail, name='room-detail'),
-    path('rooms/<int:pk>/update/', views.room_detail, name='update-room'),
-    path('rooms/<int:pk>/delete/', views.room_detail, name='delete-room'),
+    path('rooms/<int:pk>/update/', views.update_delete_room, name='update-room'),
+    path('rooms/<int:pk>/delete/', views.update_delete_room, name='delete-room'),
     
     # Messages
     path('rooms/<int:room_pk>/message/', views.create_message, name='create-message'),
