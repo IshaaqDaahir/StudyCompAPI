@@ -130,6 +130,8 @@ def room_detail(request, pk):
         return Response(serializer.data)
 
 @api_view(['PUT', 'DELETE'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def update_delete_room(request, pk):
     try:
         room = Room.objects.get(pk=pk)
