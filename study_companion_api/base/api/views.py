@@ -141,8 +141,18 @@ def update_delete_room(request, pk):
     if request.method == 'PUT':
         if room.host != request.user:
             return Response({'error': 'You are not the host of this room'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Handle topic update
+        topic_name = request.data.get('topic')
+        if topic_name:
+            topic_name = topic_name.strip()
+            if topic_name:
+                topic, created = Topic.objects.get_or_create(name=topic_name)
+                request.data['topic'] = topic.id
+            else:
+                return Response({'error': 'Topic cannot be empty'}, status=status.HTTP_400_BAD_REQUEST)
         
-        serializer = RoomSerializer(room, data=request.data)
+        serializer = RoomSerializer(room, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
