@@ -22,7 +22,7 @@ urlpatterns = [
     path('rooms/<int:pk>/delete/', views.update_delete_room, name='delete-room'),
     
     # Messages
-    path('rooms/<int:room_pk>/message/', views.create_message, name='create-message'),
+    path('rooms/<int:room_pk>/create-message/', views.create_message, name='create-message'),
     path('messages/', views.message_list, name='message-list'),
     path('messages/<int:msg_pk>/', views.message_detail, name='message-detail'),
 
