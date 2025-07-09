@@ -240,6 +240,8 @@ def get_users(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def create_message(request, room_pk):
     try:
         room = Room.objects.get(pk=room_pk)
@@ -247,12 +249,14 @@ def create_message(request, room_pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'POST':
-        message = MessageSerializer(data=request.data)
-        if message.is_valid():
-            message.save(user=request.user, room=room)
+        serializer = MessageSerializer(data=request.data)
+        if serializer.is_valid():
             room.participants.add(request.user)
-            return Response(message.data, status=status.HTTP_201_CREATED)
-        return Response(message.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Save the message with the user and room
+            serializer.save(user=request.user, room=room)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['GET'])
 def message_list(request):
