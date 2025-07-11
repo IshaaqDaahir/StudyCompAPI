@@ -15,6 +15,7 @@ urlpatterns = [
     # Users
     path('users/', views.get_users, name='users'),
     path('users/<int:pk>/', views.get_user, name='user'),
+    path('users/update/', views.update_user, name='update-user'),
     
     # Rooms
     path('rooms/', views.room_list, name='room-list'),

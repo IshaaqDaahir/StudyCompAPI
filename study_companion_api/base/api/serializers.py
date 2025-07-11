@@ -76,3 +76,28 @@ class MessageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        required=False,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    username = serializers.CharField(
+        required=False,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'name', 'bio', 'avatar']
+        extra_kwargs = {
+            'avatar': {'required': False},
+            'bio': {'required': False},
+            'name': {'required': False}
+        }
+
+    def update(self, instance, validated_data):
+        # Only update fields that are provided in the request
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
