@@ -11,6 +11,7 @@ from .serializers import (
     UserSerializer, 
     RegisterSerializer, 
     MessageSerializer,
+    UserUpdateSerializer,
 )
 from base.models import Room, Topic, Message
 from django.db.models import Q
@@ -238,6 +239,27 @@ def get_users(request):
     users = User.objects.all()
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
+
+@api_view(['PUT'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def update_user(request):
+    try:
+        user = request.user
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'PUT':
+        serializer = UserUpdateSerializer(
+            user, 
+            data=request.data,
+            partial=True  # Allow partial updates
+        )
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
