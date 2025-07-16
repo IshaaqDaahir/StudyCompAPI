@@ -94,10 +94,3 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'bio': {'required': False},
             'name': {'required': False}
         }
-
-    def update(self, instance, validated_data):
-        # Only update fields that are provided in the request
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
