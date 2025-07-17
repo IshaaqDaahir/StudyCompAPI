@@ -4,9 +4,16 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'name', 'bio', 'avatar']
+        
+    def get_avatar(self, obj):
+        if obj.avatar:
+            # Return relative path without domain
+            return obj.avatar.url
+        return None
 
 
 class RegisterSerializer(serializers.ModelSerializer):

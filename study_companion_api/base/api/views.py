@@ -173,8 +173,9 @@ def register_user(request):
         if serializer.is_valid():
             user = serializer.save()
             refresh = RefreshToken.for_user(user)
+            user_serializer = UserSerializer(user, context={'request': request})
             return Response({
-                'user': UserSerializer(user).data,
+                'user': user_serializer.data,
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
             }, status=status.HTTP_201_CREATED)
@@ -206,8 +207,9 @@ def login_user(request):
         login(request, user)
         refresh = RefreshToken.for_user(user)
 
+        user_serializer = UserSerializer(user, context={'request': request})
         return Response({
-            'user': UserSerializer(user).data,
+            'user': user_serializer.data,
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         })
@@ -231,13 +233,13 @@ def logout_user(request):
 @api_view(['GET'])
 def get_user(request, pk):
     user = User.objects.get(pk=pk)
-    serializer = UserSerializer(user)
+    serializer = UserSerializer(user, context={'request': request})
     return Response(serializer.data)
 
 @api_view(['GET'])
 def get_users(request):
     users = User.objects.all()
-    serializer = UserSerializer(users, many=True)
+    serializer = UserSerializer(users, many=True, context={'request': request})
     return Response(serializer.data)
 
 @api_view(['PUT'])
@@ -258,7 +260,9 @@ def update_user(request):
         
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            # Return updated user with absolute URL
+            user_serializer = UserSerializer(user, context={'request': request})
+            return Response(user_serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
