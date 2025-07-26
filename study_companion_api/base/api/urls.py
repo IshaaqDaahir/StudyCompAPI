@@ -11,8 +11,11 @@ urlpatterns = [
     path('register/', views.register_user, name='register'),
     path('login/', views.login_user, name='login'),
     path('logout/', views.logout_user, name='logout'),
+
+    # Users
     path('users/', views.get_users, name='users'),
     path('users/<int:pk>/', views.get_user, name='user'),
+    path('users/update/', views.update_user, name='update-user'),
     
     # Rooms
     path('rooms/', views.room_list, name='room-list'),
@@ -22,7 +25,7 @@ urlpatterns = [
     path('rooms/<int:pk>/delete/', views.update_delete_room, name='delete-room'),
     
     # Messages
-    path('rooms/<int:room_pk>/message/', views.create_message, name='create-message'),
+    path('rooms/<int:room_pk>/create-message/', views.create_message, name='create-message'),
     path('messages/', views.message_list, name='message-list'),
     path('messages/<int:msg_pk>/', views.message_detail, name='message-detail'),
 

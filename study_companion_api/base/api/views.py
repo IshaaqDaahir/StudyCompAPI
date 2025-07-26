@@ -11,6 +11,7 @@ from .serializers import (
     UserSerializer, 
     RegisterSerializer, 
     MessageSerializer,
+    UserUpdateSerializer,
 )
 from base.models import Room, Topic, Message
 from django.db.models import Q
@@ -30,14 +31,14 @@ def get_routes(request):
         'GET /api/search/',
         'POST /api/rooms/create/'
         'GET /api/rooms/',
-        'GET /api/rooms/:id',
-        'POST /api/rooms/:id/update',
-        'POST /api/rooms/:id/delete',
-        'POST /api/rooms/:id/message',
+        'GET /api/rooms/:id/',
+        'POST /api/rooms/:id/update/',
+        'POST /api/rooms/:id/delete/',
+        'POST /api/rooms/:id/create-message/',
         'GET /api/messages/',
-        'GET /api/messages/:id',
+        'GET /api/messages/:id/',
         'GET /api/users/',
-        'GET /api/users/:id',
+        'GET /api/users/:id/',
         'POST /api/token/',
         'POST /api/token/refresh/',
         'POST /api/register/',
@@ -172,8 +173,9 @@ def register_user(request):
         if serializer.is_valid():
             user = serializer.save()
             refresh = RefreshToken.for_user(user)
+            user_serializer = UserSerializer(user, context={'request': request})
             return Response({
-                'user': UserSerializer(user).data,
+                'user': user_serializer.data,
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
             }, status=status.HTTP_201_CREATED)
@@ -205,8 +207,9 @@ def login_user(request):
         login(request, user)
         refresh = RefreshToken.for_user(user)
 
+        user_serializer = UserSerializer(user, context={'request': request})
         return Response({
-            'user': UserSerializer(user).data,
+            'user': user_serializer.data,
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         })
@@ -230,16 +233,41 @@ def logout_user(request):
 @api_view(['GET'])
 def get_user(request, pk):
     user = User.objects.get(pk=pk)
-    serializer = UserSerializer(user)
+    serializer = UserSerializer(user, context={'request': request})
     return Response(serializer.data)
 
 @api_view(['GET'])
 def get_users(request):
     users = User.objects.all()
-    serializer = UserSerializer(users, many=True)
+    serializer = UserSerializer(users, many=True, context={'request': request})
     return Response(serializer.data)
 
+@api_view(['PUT'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def update_user(request):
+    try:
+        user = request.user
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'PUT':
+        serializer = UserUpdateSerializer(
+            user, 
+            data=request.data,
+            partial=True  # Allow partial updates
+        )
+        
+        if serializer.is_valid():
+            serializer.save()
+            # Return updated user with absolute URL
+            user_serializer = UserSerializer(user, context={'request': request})
+            return Response(user_serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def create_message(request, room_pk):
     try:
         room = Room.objects.get(pk=room_pk)
@@ -247,12 +275,14 @@ def create_message(request, room_pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'POST':
-        message = MessageSerializer(data=request.data)
-        if message.is_valid():
-            message.save(user=request.user, room=room)
+        serializer = MessageSerializer(data=request.data)
+        if serializer.is_valid():
             room.participants.add(request.user)
-            return Response(message.data, status=status.HTTP_201_CREATED)
-        return Response(message.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Save the message with the user and room
+            serializer.save(user=request.user, room=room)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['GET'])
 def message_list(request):

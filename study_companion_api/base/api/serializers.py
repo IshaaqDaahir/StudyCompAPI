@@ -4,18 +4,34 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'name', 'bio', 'avatar']
+        
+    def get_avatar(self, obj):
+        if obj.avatar:
+            # Return relative path without domain
+            return obj.avatar.url
+        return None
 
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
+        validators=[UniqueValidator(queryset=User.objects.all(),
+        message="This email is already registered.")]
+    )
+    username = serializers.CharField(
+    required=True,
+    validators=[UniqueValidator(
+        queryset=User.objects.all(),
+        message="This username is already taken."
+        )]
     )
     password1 = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
+    
 
     class Meta:
         model = User
@@ -76,3 +92,21 @@ class MessageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        required=False,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    username = serializers.CharField(
+        required=False,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'name', 'bio', 'avatar']
+        extra_kwargs = {
+            'avatar': {'required': False},
+            'bio': {'required': False},
+            'name': {'required': False}
+        }
