@@ -183,7 +183,7 @@ def register_user(request):
 
 @api_view(['POST'])
 def login_user(request):
-    email = request.data.get('email').lower().strip() if request.data.get('email') else None
+    email = request.data.get('email')
     password = request.data.get('password')
 
     # Validate input
@@ -192,6 +192,9 @@ def login_user(request):
             {'error': 'Both email and password are required'}, 
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    # Normalize email
+    email = email.lower().strip()
     
     # Authenticate using email as username
     user = authenticate(request, username=email, password=password)
@@ -199,21 +202,28 @@ def login_user(request):
     if user is not None:
         if not user.is_active:
             return Response(
-                {'error': 'Account is disabled'}, 
+                {'error': 'Account is disabled. Please contact support.'}, 
                 status=status.HTTP_403_FORBIDDEN
             )
         
         # This is optional - only needed if you want session-based auth too
         login(request, user)
         refresh = RefreshToken.for_user(user)
-
         user_serializer = UserSerializer(user, context={'request': request})
         return Response({
             'user': user_serializer.data,
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         })
-    return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # Check if email exists in the system
+    if not User.objects.filter(email=email).exists():
+        return Response(
+            {'error': 'No account found with this email address'}, 
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    return Response({'error': 'The password you entered is incorrect'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
 def logout_user(request):
