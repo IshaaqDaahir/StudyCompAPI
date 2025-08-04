@@ -15,13 +15,12 @@ from .serializers import (
 )
 from base.models import Room, Topic, Message
 from django.db.models import Q
-
-# api/views.py
 from django.db.models import Q
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import RoomSerializer, TopicSerializer, MessageSerializer
 from base.models import Room, Topic, Message
+from rest_framework.pagination import PageNumberPagination
 
 @api_view(['GET'])
 def get_routes(request):
@@ -50,8 +49,10 @@ def get_routes(request):
 @api_view(["GET"])
 def topics_list(request):
     topics = Topic.objects.all()
-    topics_serializer = TopicSerializer(topics, many=True)
-    return Response(topics_serializer.data)
+    paginator = PageNumberPagination()
+    result_page = paginator.paginate_queryset(topics, request)
+    topics_serializer = TopicSerializer(result_page, many=True)
+    return paginator.get_paginated_response(topics_serializer.data)
 
 @api_view(['GET'])
 def search(request):
@@ -116,8 +117,11 @@ def create_room(request):
 def room_list(request):
     if request.method == 'GET':
         rooms = Room.objects.all()
-        serializer = RoomSerializer(rooms, many=True)
-        return Response(serializer.data)
+        paginator = PageNumberPagination()
+        paginator.page_size = 2
+        result_page = paginator.paginate_queryset(rooms, request)
+        serializer = RoomSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 @api_view(['GET'])
 def room_detail(request, pk):
@@ -249,8 +253,10 @@ def get_user(request, pk):
 @api_view(['GET'])
 def get_users(request):
     users = User.objects.all()
-    serializer = UserSerializer(users, many=True, context={'request': request})
-    return Response(serializer.data)
+    paginator = PageNumberPagination()
+    result_page = paginator.paginate_queryset(users, request)
+    serializer = UserSerializer(result_page, many=True, context={'request': request})
+    return paginator.get_paginated_response(serializer.data)
 
 @api_view(['PUT'])
 @authentication_classes([JWTAuthentication])
@@ -298,8 +304,11 @@ def create_message(request, room_pk):
 def message_list(request):
     if request.method == 'GET':
         messages = Message.objects.all()
-        serializer = MessageSerializer(messages, many=True)
-        return Response(serializer.data)
+        paginator = PageNumberPagination()
+        paginator.page_size = 1
+        result_page = paginator.paginate_queryset(messages, request)
+        serializer = MessageSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 @api_view(['GET', 'DELETE'])
 def message_detail(request, msg_pk):
