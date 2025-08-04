@@ -22,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-2=gyuwdas88si^@&irh50ussfgqki=e#f!kld)v_8-mp(l9z35'
+SECRET_KEY = 'v9!2@#8z$1qwe7rtyuio4plmnbvcxzasdfghjklpoiuytrewq0987654321mnbvcxzlkjhgfdsa'  # Replace with your own strong, unique key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 MEDIA_URL = '/media/'
 
@@ -128,10 +128,17 @@ USE_I18N = True
 USE_TZ = True
 
 
+# Security settings for deployment
+SECURE_HSTS_SECONDS = 31536000  # 1 year, adjust as needed
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_SSL_REDIRECT = True
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -166,3 +173,6 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SESSION_COOKIE_SECURE = True  # For HTTPS
 CSRF_COOKIE_SECURE = True     # For HTTPS
+
+
+ADMINS = [("Isiya Dahiru", "ishaqtafiyau@gmail.com")]
