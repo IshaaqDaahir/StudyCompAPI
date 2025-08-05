@@ -6,7 +6,7 @@ services:
       pip install -r requirements.txt
       python manage.py migrate
       python manage.py collectstatic --noinput
-    startCommand: gunicorn study_companion_api.study_companion_api.wsgi:application
+    startCommand: gunicorn study_companion_api.wsgi:application
     envVars:
       - key: DJANGO_SECRET_KEY
         sync: false
@@ -17,4 +17,4 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: DJANGO_SETTINGS_MODULE
-        value: study_companion_api.study_companion_api.settings
+        value: study_companion_api.settings
