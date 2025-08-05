@@ -16,3 +16,5 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
+      - key: DJANGO_SETTINGS_MODULE
+        value: study_companion_api.study_companion_api.settings
