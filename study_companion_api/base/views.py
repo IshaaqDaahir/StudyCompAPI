@@ -26,7 +26,7 @@ from rest_framework.pagination import PageNumberPagination
 def get_routes(request):
     routes = [
         'GET /api',
-        'GET /api/topics_list/',
+        'GET /api/topics/',
         'GET /api/search/',
         'POST /api/rooms/create/'
         'GET /api/rooms/',
