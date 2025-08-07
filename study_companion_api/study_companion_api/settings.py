@@ -152,7 +152,7 @@ REST_FRAMEWORK = {
 # CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Development frontend URL
-    "https://studycomp.vercel.app/",  # Production frontend URL
+    "https://studycomp.vercel.app",  # Production frontend URL
 ]
 # Add production frontend URL if needed
 CORS_ALLOW_CREDENTIALS = True
