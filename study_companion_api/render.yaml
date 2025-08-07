@@ -1,20 +1,20 @@
 databases:
-  - name: studycomp-api-db
+  - name: study_companion_apidb
     plan: free
-    databaseName: studycomp
-    user: studycomp_user
+    databaseName: study_companion_api
+    user: study_companion_api
 
 services:
   - type: web
     plan: free
-    name: studycomp-api
+    name: study_companion_api
     runtime: python
     buildCommand: './build.sh'
-    startCommand: 'python -m gunicorn studycomp-api.asgi:application -k uvicorn.workers.UvicornWorker' 
+    startCommand: 'python -m gunicorn study_companion_api.asgi:application -k uvicorn.workers.UvicornWorker' 
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: studycomp-api-db
+          name: study_companion_apidb
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
