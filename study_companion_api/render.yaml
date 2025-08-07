@@ -1,20 +1,22 @@
+databases:
+  - name: studycomp-api-db
+    plan: free
+    databaseName: studycomp
+    user: studycomp_user
+
 services:
   - type: web
-    name: study-companion-api
-    env: python
-    buildCommand: |
-      pip install -r requirements.txt
-      python manage.py migrate
-      python manage.py collectstatic --noinput
-    startCommand: gunicorn study_companion_api.wsgi:application
+    plan: free
+    name: studycomp-api
+    runtime: python
+    buildCommand: './build.sh'
+    startCommand: 'python -m gunicorn studycomp-api.asgi:application -k uvicorn.workers.UvicornWorker' 
     envVars:
-      - key: DJANGO_SECRET_KEY
-        sync: false
-      - key: DJANGO_DEBUG
-        value: False
-      - key: ALLOWED_HOSTS
-        sync: false
       - key: DATABASE_URL
-        sync: false
-      - key: DJANGO_SETTINGS_MODULE
-        value: study_companion_api.settings
+        fromDatabase:
+          name: studycomp-api-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
