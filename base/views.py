@@ -21,6 +21,7 @@ from rest_framework.response import Response
 from .serializers import RoomSerializer, TopicSerializer, MessageSerializer
 from base.models import Room, Topic, Message
 from rest_framework.pagination import PageNumberPagination
+from django.http import JsonResponse
 
 @api_view(['GET'])
 def get_routes(request):
@@ -46,9 +47,14 @@ def get_routes(request):
     ]
     return Response(routes)
 
+def empty_response():
+    return JsonResponse([], safe=False)  # Return empty array instead of 404
+
 @api_view(["GET"])
 def topics_list(request):
     topics = Topic.objects.all()
+    if not topics.exists():
+            return JsonResponse([], safe=False)
     paginator = PageNumberPagination()
     result_page = paginator.paginate_queryset(topics, request)
     topics_serializer = TopicSerializer(result_page, many=True)
@@ -117,6 +123,8 @@ def create_room(request):
 def room_list(request):
     if request.method == 'GET':
         rooms = Room.objects.all()
+        if not rooms.exists():
+            return JsonResponse([], safe=False)
         paginator = PageNumberPagination()
         paginator.page_size = 2
         result_page = paginator.paginate_queryset(rooms, request)
@@ -253,6 +261,8 @@ def get_user(request, pk):
 @api_view(['GET'])
 def get_users(request):
     users = User.objects.all()
+    if not users.exists():
+            return JsonResponse([], safe=False)
     paginator = PageNumberPagination()
     result_page = paginator.paginate_queryset(users, request)
     serializer = UserSerializer(result_page, many=True, context={'request': request})
@@ -304,6 +314,8 @@ def create_message(request, room_pk):
 def message_list(request):
     if request.method == 'GET':
         messages = Message.objects.all()
+        if not messages.exists():
+            return JsonResponse([], safe=False)
         paginator = PageNumberPagination()
         paginator.page_size = 1
         result_page = paginator.paginate_queryset(messages, request)
