@@ -19,10 +19,21 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Environment variables for production
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-secret-key')
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ['https://study-companion-api-25hw.onrender.com']
+# SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-secret-key')
+DEBUG = False
 
+
+ALLOWED_HOSTS = [
+    'https://study-companion-api-25hw.onrender.com',
+    'localhost',
+]
+
+# For Render.com
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+    
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -121,10 +132,10 @@ USE_TZ = True
 
 
 # Security settings for deployment
-SECURE_HSTS_SECONDS = 31536000  # 1 year, adjust as needed
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-SECURE_SSL_REDIRECT = True
+# SECURE_HSTS_SECONDS = 31536000  # 1 year, adjust as needed
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
+# SECURE_SSL_REDIRECT = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -159,8 +170,8 @@ REST_FRAMEWORK = {
 
 # CORS
 CORS_ALLOWED_ORIGINS = [
+    "https://studycomp.vercel.app"  # Production frontend URL
     "http://localhost:3000",  # Development frontend URL
-    "https://studycomp.vercel.app",  # Production frontend URL
 ]
 # Add production frontend URL if needed
 CORS_ALLOW_CREDENTIALS = True
@@ -173,10 +184,10 @@ SIMPLE_JWT = {
 }
 
 
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SESSION_COOKIE_SECURE = True  # For HTTPS
-CSRF_COOKIE_SECURE = True     # For HTTPS
+# SECURE_BROWSER_XSS_FILTER = True
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# SESSION_COOKIE_SECURE = True  # For HTTPS
+# CSRF_COOKIE_SECURE = True     # For HTTPS
 
 
 ADMINS = [("Isiya Dahiru", "ishaqtafiyau@gmail.com")]
