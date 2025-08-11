@@ -126,26 +126,13 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Security settings for deployment
-# SECURE_HSTS_SECONDS = 31536000  # 1 year, adjust as needed
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-# SECURE_HSTS_PRELOAD = True
-# SECURE_SSL_REDIRECT = True
-
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-# This setting informs Django of the URI path from which your static files will be served to users
-# Here, they well be accessible at your-domain.onrender.com/static/... or yourcustomdomain.com/static/...
 STATIC_URL = '/static/'
 # This production code might break development mode, so we check whether we're in DEBUG mode
 if not DEBUG:
-    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
-    # and renames the files with unique names for each version to support long-term caching
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
@@ -188,15 +175,15 @@ SIMPLE_JWT = {
 }
 
 
-# SECURE_BROWSER_XSS_FILTER = True
-# SECURE_CONTENT_TYPE_NOSNIFF = True
-# SESSION_COOKIE_SECURE = True  # For HTTPS
-# CSRF_COOKIE_SECURE = True     # For HTTPS
-
-
 ADMINS = [("Isiya Dahiru", "ishaqtafiyau@gmail.com")]
 
 # For Render.com
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+
+# Security settings (important for production)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
