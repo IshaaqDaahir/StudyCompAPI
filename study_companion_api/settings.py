@@ -24,14 +24,9 @@ DEBUG = False
 
 
 ALLOWED_HOSTS = [
-    'https://study-companion-api-25hw.onrender.com',
+    'study-companion-api-25hw.onrender.com',
     'localhost',
 ]
-
-# For Render.com
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
     
 MEDIA_URL = '/media/'
@@ -58,12 +53,11 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'base.User'
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -176,6 +170,15 @@ CORS_ALLOWED_ORIGINS = [
 # Add production frontend URL if needed
 CORS_ALLOW_CREDENTIALS = True
 
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
 
 # For development, you can increase the token lifetime
 SIMPLE_JWT = {
@@ -191,3 +194,8 @@ SIMPLE_JWT = {
 
 
 ADMINS = [("Isiya Dahiru", "ishaqtafiyau@gmail.com")]
+
+# For Render.com
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
