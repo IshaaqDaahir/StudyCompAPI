@@ -26,6 +26,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     'study-companion-api-25hw.onrender.com',
     'localhost',
+    '127.0.0.1'
 ]
 
     
