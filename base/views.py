@@ -62,7 +62,7 @@ def topics_list(request):
 
 @api_view(['GET'])
 def search(request):
-    query = request.GET.get('q', '')
+    query = request.query_params.get('q', '')
     
     # Search rooms
     rooms = Room.objects.filter(
