@@ -19,7 +19,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Environment variables for production
-# SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-secret-key')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-secret-key')
 DEBUG = False
 
 
