@@ -101,12 +101,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         required=False,
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
-
+    avatar = serializers.ImageField(required=False)
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'name', 'bio', 'avatar']
         extra_kwargs = {
-            'avatar': {'required': False},
             'bio': {'required': False},
             'name': {'required': False}
         }
