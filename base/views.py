@@ -20,7 +20,6 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import RoomSerializer, TopicSerializer, MessageSerializer
 from base.models import Room, Topic, Message
-from rest_framework.pagination import PageNumberPagination
 from django.http import JsonResponse
 
 @api_view(['GET'])
@@ -55,10 +54,8 @@ def topics_list(request):
     topics = Topic.objects.all()
     if not topics.exists():
             return JsonResponse([], safe=False)
-    paginator = PageNumberPagination()
-    result_page = paginator.paginate_queryset(topics, request)
-    topics_serializer = TopicSerializer(result_page, many=True)
-    return paginator.get_paginated_response(topics_serializer.data)
+    topics_serializer = TopicSerializer(topics, many=True)
+    return Response(topics_serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def search(request):
@@ -125,11 +122,8 @@ def room_list(request):
         rooms = Room.objects.all()
         if not rooms.exists():
             return JsonResponse([], safe=False)
-        paginator = PageNumberPagination()
-        paginator.page_size = 2
-        result_page = paginator.paginate_queryset(rooms, request)
-        serializer = RoomSerializer(result_page, many=True)
-        return paginator.get_paginated_response(serializer.data)
+        serializer = RoomSerializer(rooms, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def room_detail(request, pk):
@@ -256,17 +250,15 @@ def logout_user(request):
 def get_user(request, pk):
     user = User.objects.get(pk=pk)
     serializer = UserSerializer(user, context={'request': request})
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def get_users(request):
     users = User.objects.all()
     if not users.exists():
             return JsonResponse([], safe=False)
-    paginator = PageNumberPagination()
-    result_page = paginator.paginate_queryset(users, request)
-    serializer = UserSerializer(result_page, many=True, context={'request': request})
-    return paginator.get_paginated_response(serializer.data)
+    serializer = UserSerializer(users, many=True, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
 @authentication_classes([JWTAuthentication])
@@ -316,11 +308,8 @@ def message_list(request):
         messages = Message.objects.all()
         if not messages.exists():
             return JsonResponse([], safe=False)
-        paginator = PageNumberPagination()
-        paginator.page_size = 1
-        result_page = paginator.paginate_queryset(messages, request)
-        serializer = MessageSerializer(result_page, many=True)
-        return paginator.get_paginated_response(serializer.data)
+        serializer = MessageSerializer(messages, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'DELETE'])
 def message_detail(request, msg_pk):
