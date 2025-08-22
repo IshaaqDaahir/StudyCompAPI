@@ -2,17 +2,26 @@ from rest_framework import serializers
 from base.models import Room, Topic, Message, User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
+from django.conf import settings
+DEBUG = settings.DEBUG
 
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'name', 'bio', 'avatar']
         
     def get_avatar(self, obj):
         if obj.avatar:
-            # Return relative path without domain
-            return obj.avatar.url
+            # Return full URL for avatar
+            request = self.context.get('request')
+            if request and not DEBUG:
+                # For production with S3
+                return obj.avatar.url
+            else:
+                # For development
+                return request.build_absolute_uri(obj.avatar.url) if request else obj.avatar.url
         return None
 
 
@@ -109,3 +118,17 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'bio': {'required': False},
             'name': {'required': False}
         }
+
+    def update(self, instance, validated_data):
+        # Handle file upload separately
+        avatar = validated_data.pop('avatar', None)
+        
+        # Update other fields
+        instance = super().update(instance, validated_data)
+        
+        # Update avatar if provided
+        if avatar:
+            instance.avatar = avatar
+            instance.save()
+        
+        return instance

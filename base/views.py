@@ -270,9 +270,16 @@ def update_user(request):
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'PUT':
+        # Handle file upload
+        data = request.data.copy()
+        
+        # If avatar is being uploaded, handle it properly
+        if 'avatar' in request.FILES:
+            data['avatar'] = request.FILES['avatar']
+
         serializer = UserUpdateSerializer(
             user, 
-            data=request.data,
+            data=data,
             partial=True  # Allow partial updates
         )
         
