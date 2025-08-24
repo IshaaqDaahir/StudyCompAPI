@@ -16,11 +16,11 @@ class UserSerializer(serializers.ModelSerializer):
         if obj.avatar:
             # Return full URL for avatar
             request = self.context.get('request')
-            if request and not DEBUG:
-                # For production with S3
+            if not DEBUG:
+                # For production with S3 - return direct S3 URL
                 return obj.avatar.url
             else:
-                # For development
+                # For development - build absolute URI
                 return request.build_absolute_uri(obj.avatar.url) if request else obj.avatar.url
         return None
 
