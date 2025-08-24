@@ -40,12 +40,14 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.staticfiles',
 
     'base',
     
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'storages',
 ]
 
 AUTH_USER_MODEL = 'base.User'
@@ -180,12 +182,13 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 
-# Media files configuration for production
+# Static files configuration
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Media files configuration
 if not DEBUG:
-    # Use Amazon S3 for file storage in production
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    
-    # AWS S3 settings
+    # AWS S3 settings for production
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
     AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
@@ -194,6 +197,19 @@ if not DEBUG:
     AWS_S3_FILE_OVERWRITE = False
     AWS_DEFAULT_ACL = 'public-read'
     AWS_QUERYSTRING_AUTH = False
+    
+    # Use new STORAGES setting (Django 4.2+)
+    STORAGES = {
+        'default': {
+            'BACKEND': 'study_companion_api.storage_backends.MediaStorage',
+        },
+        'staticfiles': {
+            'BACKEND': 'study_companion_api.storage_backends.StaticStorage',
+        },
+    }
+    
+    # Media URL for S3
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
 else:
     # Local media files for development
     MEDIA_URL = '/media/'
