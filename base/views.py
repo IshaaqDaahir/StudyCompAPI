@@ -54,7 +54,7 @@ def topics_list(request):
     topics = Topic.objects.all()
     if not topics.exists():
             return JsonResponse([], safe=False)
-    topics_serializer = TopicSerializer(topics, many=True)
+    topics_serializer = TopicSerializer(topics, many=True, context={'request': request})
     return Response(topics_serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -68,11 +68,11 @@ def search(request):
         Q(topic__name__icontains=query) |
         Q(host__username__icontains=query)
     )
-    room_serializer = RoomSerializer(rooms, many=True)
+    room_serializer = RoomSerializer(rooms, many=True, context={'request': request})
     
     # Search topics
     topics = Topic.objects.filter(name__icontains=query)
-    topic_serializer = TopicSerializer(topics, many=True)
+    topic_serializer = TopicSerializer(topics, many=True, context={'request': request})
     
     # Search messages (for activity feed)
     messages = Message.objects.filter(
@@ -80,7 +80,7 @@ def search(request):
         Q(room__name__icontains=query) |
         Q(user__username__icontains=query)
     )
-    message_serializer = MessageSerializer(messages, many=True)
+    message_serializer = MessageSerializer(messages, many=True, context={'request': request})
     
     return Response({
         'rooms': room_serializer.data,
@@ -122,7 +122,7 @@ def room_list(request):
         rooms = Room.objects.all()
         if not rooms.exists():
             return JsonResponse([], safe=False)
-        serializer = RoomSerializer(rooms, many=True)
+        serializer = RoomSerializer(rooms, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -133,7 +133,7 @@ def room_detail(request, pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = RoomSerializer(room)
+        serializer = RoomSerializer(room, context={'request': request})
         return Response(serializer.data)
 
 @api_view(['PUT', 'DELETE'])
@@ -159,7 +159,7 @@ def update_delete_room(request, pk):
             else:
                 return Response({'error': 'Topic cannot be empty'}, status=status.HTTP_400_BAD_REQUEST)
         
-        serializer = RoomSerializer(room, data=request.data, partial=True)
+        serializer = RoomSerializer(room, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -175,7 +175,7 @@ def update_delete_room(request, pk):
 @api_view(['POST'])
 def register_user(request):
     if request.method == 'POST':
-        serializer = RegisterSerializer(data=request.data)
+        serializer = RegisterSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             user = serializer.save()
             refresh = RefreshToken.for_user(user)
@@ -280,7 +280,8 @@ def update_user(request):
         serializer = UserUpdateSerializer(
             user, 
             data=data,
-            partial=True  # Allow partial updates
+            partial=True,  # Allow partial updates
+            context={'request': request}
         )
         
         if serializer.is_valid():
@@ -300,7 +301,7 @@ def create_message(request, room_pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'POST':
-        serializer = MessageSerializer(data=request.data)
+        serializer = MessageSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             room.participants.add(request.user)
             
@@ -315,7 +316,7 @@ def message_list(request):
         messages = Message.objects.all()
         if not messages.exists():
             return JsonResponse([], safe=False)
-        serializer = MessageSerializer(messages, many=True)
+        serializer = MessageSerializer(messages, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'DELETE'])
@@ -331,7 +332,7 @@ def message_detail(request, msg_pk):
         #     )
 
         if request.method == 'GET':
-            serializer = MessageSerializer(message)
+            serializer = MessageSerializer(message, context={'request': request})
             return Response(serializer.data)
         
         elif request.method == 'DELETE':
