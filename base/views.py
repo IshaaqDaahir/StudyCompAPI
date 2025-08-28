@@ -96,7 +96,7 @@ def create_room(request):
     topic_name = request.data.get('topic', '').strip()
 
     if not topic_name:
-        return Response({'error': 'Topic is required'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response('Topic is required', status=status.HTTP_400_BAD_REQUEST)
     
     # Get or create the topic
     topic, created = Topic.objects.get_or_create(name=topic_name)
@@ -147,7 +147,7 @@ def update_delete_room(request, pk):
 
     if request.method == 'PUT':
         if room.host != request.user:
-            return Response({'error': 'You are not the host of this room'}, status=status.HTTP_403_FORBIDDEN)
+            return Response('You are not the host of this room', status=status.HTTP_403_FORBIDDEN)
 
         # Handle topic update
         topic_name = request.data.get('topic')
@@ -157,7 +157,7 @@ def update_delete_room(request, pk):
                 topic, created = Topic.objects.get_or_create(name=topic_name)
                 request.data['topic'] = topic.id
             else:
-                return Response({'error': 'Topic cannot be empty'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response('Topic cannot be empty', status=status.HTTP_400_BAD_REQUEST)
         
         serializer = RoomSerializer(room, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
@@ -167,7 +167,7 @@ def update_delete_room(request, pk):
 
     elif request.method == 'DELETE':
         if room.host != request.user:
-            return Response({'error': 'You are not the host of this room'}, status=status.HTTP_403_FORBIDDEN)
+            return Response('You are not the host of this room', status=status.HTTP_403_FORBIDDEN)
         
         room.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -195,7 +195,7 @@ def login_user(request):
     # Validate input
     if not email or not password:
         return Response(
-            {'error': 'Both email and password are required'}, 
+            'Both email and password are required', 
             status=status.HTTP_400_BAD_REQUEST
         )
 
@@ -208,7 +208,7 @@ def login_user(request):
     if user is not None:
         if not user.is_active:
             return Response(
-                {'error': 'Account is disabled. Please contact support.'}, 
+                'Account is disabled. Please contact support.', 
                 status=status.HTTP_403_FORBIDDEN
             )
         
@@ -225,11 +225,11 @@ def login_user(request):
     # Check if email exists in the system
     if not User.objects.filter(email=email).exists():
         return Response(
-            {'error': 'No account found with this email address'}, 
+            'No account found with this email address', 
             status=status.HTTP_401_UNAUTHORIZED
         )
     
-    return Response({'error': 'The password you entered is incorrect'}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response('The password you entered is incorrect', status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
 def logout_user(request):
@@ -242,7 +242,7 @@ def logout_user(request):
         return Response(status=status.HTTP_205_RESET_CONTENT)
     except Exception as e:
         return Response(
-            {'error': str(e)}, 
+            str(e), 
             status=status.HTTP_400_BAD_REQUEST
         )
 
@@ -324,13 +324,6 @@ def message_detail(request, msg_pk):
     try:
         message = Message.objects.get(pk=msg_pk)
 
-        # Check if the requesting user owns the message
-        # if request.user != message.user:
-        #     return Response(
-        #         {'error': 'You can only delete your own messages'},
-        #         status=status.HTTP_403_FORBIDDEN
-        #     )
-
         if request.method == 'GET':
             serializer = MessageSerializer(message, context={'request': request})
             return Response(serializer.data)
@@ -344,7 +337,7 @@ def message_detail(request, msg_pk):
     
     except Message.DoesNotExist:
         return Response(
-            {'error': 'Message not found'},
+            'Message not found',
             status=status.HTTP_404_NOT_FOUND
         )
     
