@@ -320,6 +320,8 @@ def message_list(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'DELETE'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def message_detail(request, msg_pk):
     try:
         message = Message.objects.get(pk=msg_pk)
@@ -329,6 +331,11 @@ def message_detail(request, msg_pk):
             return Response(serializer.data)
         
         elif request.method == 'DELETE':
+            if message.user != request.user:
+                return Response(
+                    'You can only delete your own messages',
+                    status=status.HTTP_403_FORBIDDEN
+                )
             message.delete()
             return Response(
                 {'success': 'Message deleted successfully'},
