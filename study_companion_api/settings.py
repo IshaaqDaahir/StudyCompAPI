@@ -24,6 +24,9 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-secret-key')
 # Environment variables for production
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
+# reCAPTCHA configuration
+RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY')
+
 
 ALLOWED_HOSTS = [
     'study-companion-api-25hw.onrender.com',
