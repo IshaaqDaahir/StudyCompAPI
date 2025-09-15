@@ -21,6 +21,22 @@ from rest_framework.response import Response
 from .serializers import RoomSerializer, TopicSerializer, MessageSerializer
 from base.models import Room, Topic, Message
 from django.http import JsonResponse
+import requests
+from django.conf import settings
+
+def verify_recaptcha(token):
+    """Verify reCAPTCHA token with Google"""
+    if not token or not settings.RECAPTCHA_SECRET_KEY:
+        return False
+    
+    response = requests.post(
+        'https://www.google.com/recaptcha/api/siteverify',
+        data={
+            'secret': settings.RECAPTCHA_SECRET_KEY,
+            'response': token
+        }
+    )
+    return response.json().get('success', False)
 
 @api_view(['GET'])
 def get_routes(request):
@@ -175,6 +191,14 @@ def update_delete_room(request, pk):
 @api_view(['POST'])
 def register_user(request):
     if request.method == 'POST':
+        # Verify reCAPTCHA
+        recaptcha_token = request.data.get('recaptcha_token')
+        if not verify_recaptcha(recaptcha_token):
+            return Response(
+                {'error': 'reCAPTCHA verification failed'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         serializer = RegisterSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             user = serializer.save()
@@ -189,6 +213,14 @@ def register_user(request):
 
 @api_view(['POST'])
 def login_user(request):
+    # Verify reCAPTCHA
+    recaptcha_token = request.data.get('recaptcha_token')
+    if not verify_recaptcha(recaptcha_token):
+        return Response(
+            {'error': 'reCAPTCHA verification failed'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
     email = request.data.get('email')
     password = request.data.get('password')
 
