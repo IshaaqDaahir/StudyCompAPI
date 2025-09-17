@@ -217,7 +217,7 @@ def login_user(request):
     recaptcha_token = request.data.get('recaptcha_token')
     if not verify_recaptcha(recaptcha_token):
         return Response(
-            {'error': 'reCAPTCHA verification failed'}, 
+            'reCAPTCHA verification failed', 
             status=status.HTTP_400_BAD_REQUEST
         )
     
