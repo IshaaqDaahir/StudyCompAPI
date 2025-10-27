@@ -186,7 +186,7 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright (c) [Isiya Dahiru](https://github.com/IshaaqDaahir)
+   Copyright (c) 2025 [Isiya Dahiru](https://github.com/IshaaqDaahir)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
