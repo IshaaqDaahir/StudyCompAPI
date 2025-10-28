@@ -1,5 +1,5 @@
 asgiref==3.10.0
-boto3==1.40.57
+boto3==1.40.60
 botocore==1.40.58
 click==8.3.0
 colorama==0.4.6
