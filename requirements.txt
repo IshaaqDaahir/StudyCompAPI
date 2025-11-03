@@ -1,6 +1,6 @@
 asgiref==3.10.0
 boto3==1.40.60
-botocore==1.40.60
+botocore==1.40.64
 click==8.3.0
 colorama==0.4.6
 dj-database-url==3.0.1
