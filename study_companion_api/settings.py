@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import dj_database_url
 from datetime import timedelta
 import os
+import sys
 from pathlib import Path
 from decouple import config
 
@@ -88,13 +89,22 @@ WSGI_APPLICATION = 'study_companion_api.wsgi.application'
 
 
 # Database configuration
-DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
-        conn_max_age=600,
-        ssl_require=not DEBUG
-    )
-}
+if 'test' in sys.argv or 'pytest' in sys.modules:
+    # Use simple SQLite for testing
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
+            conn_max_age=600,
+            ssl_require=False  # Disable SSL for local development
+        )
+    }
 
 
 # Password validation
