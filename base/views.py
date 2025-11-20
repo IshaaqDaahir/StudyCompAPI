@@ -23,6 +23,7 @@ from base.models import Room, Topic, Message
 from django.http import JsonResponse
 import requests
 from django.conf import settings
+import logging
 
 def verify_recaptcha(token):
     """Verify reCAPTCHA token with Google"""
@@ -273,8 +274,9 @@ def logout_user(request):
         logout(request)
         return Response(status=status.HTTP_205_RESET_CONTENT)
     except Exception as e:
+        logging.exception("An error occurred during logout.")
         return Response(
-            str(e), 
+            "Logout failed. Please try again.",
             status=status.HTTP_400_BAD_REQUEST
         )
 
