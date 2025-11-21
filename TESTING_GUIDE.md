@@ -111,9 +111,7 @@ python manage.py test base.test_integration
 ### Coverage Analysis
 
 ```bash
-# Install coverage
-pip install coverage
-
+# Coverage is included in requirements.txt
 # Run tests with coverage
 coverage run --source='.' manage.py test base
 
